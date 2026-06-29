@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhyMAGIC: Physical Motion-Aware Generative Inference with Confidence-guided VLM</title>
+<meta name="description" content="PhyMAGIC — a training-free framework that generates physically consistent 3D motion from a single image using image-to-video diffusion, confidence-guided VLM reasoning, and a differentiable MPM simulator.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1117;
+    --panel:#161922;
+    --panel-2:#1c2030;
+    --text:#e7e9ee;
+    --muted:#9aa1b2;
+    --accent:#6ea8fe;
+    --accent-2:#8b7cff;
+    --border:#262b3a;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  section{padding:46px 0}
+  h2{font-size:1.5rem;font-weight:700;letter-spacing:-.01em;margin:0 0 18px;text-align:center}
+  h3{font-size:1.05rem;font-weight:600;margin:0 0 8px}
+  p{color:#d3d7e0}
+  .muted{color:var(--muted)}
+
+  /* Header */
+  header{
+    padding:64px 0 34px;text-align:center;
+    background:radial-gradient(1200px 400px at 50% -120px,rgba(110,168,254,.18),transparent 70%);
+    border-bottom:1px solid var(--border);
+  }
+  .venue{display:inline-block;font-size:.78rem;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--accent);border:1px solid var(--border);
+    background:var(--panel);padding:5px 12px;border-radius:999px;margin-bottom:20px}
+  h1{font-size:2.5rem;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin:0 auto 6px;max-width:18ch}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{font-size:1.18rem;color:#c4c9d6;font-weight:500;margin:8px auto 22px;max-width:46ch}
+  .authors{color:var(--muted);font-size:1rem;margin:0 0 6px}
+  .links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--panel);
+    border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:10px;
+    font-weight:600;font-size:.94rem;transition:.15s}
+  .btn:hover{text-decoration:none;border-color:var(--accent);transform:translateY(-1px);background:var(--panel-2)}
+  .btn svg{width:17px;height:17px}
+
+  /* Abstract */
+  .abstract{max-width:760px;margin:0 auto}
+  .abstract p{font-family:'Newsreader',Georgia,serif;font-size:1.12rem;line-height:1.72;color:#dde1ea;text-align:justify}
+
+  /* Figure */
+  figure{margin:0}
+  .fig-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;}
+  .fig-card img{width:100%;height:auto;display:block;border-radius:8px;background:#fff}
+  figcaption{color:var(--muted);font-size:.9rem;margin-top:12px;text-align:center}
+
+  /* Method steps */
+  .steps{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:26px}
+  .step{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
+  .step .tag{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--accent-2);margin-bottom:8px}
+  .step ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:.94rem}
+  .step li{margin-bottom:4px}
+
+  /* Galleries */
+  .grid{display:grid;gap:18px}
+  .g-results{grid-template-columns:repeat(3,1fr)}
+  .g-mat{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.15s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .card img{width:100%;height:auto;display:block;background:#f3f4f6}
+  .card .cap{padding:10px 14px;font-size:.9rem;font-weight:600}
+  .card .cap small{display:block;color:var(--muted);font-weight:400;font-size:.8rem}
+
+  .note{text-align:center;color:var(--muted);font-size:.92rem;max-width:640px;margin:0 auto 26px}
+
+  /* Bibtex */
+  pre{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;
+    overflow-x:auto;font-size:.86rem;color:#c9cedb;line-height:1.5}
+  code{font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace}
+
+  footer{border-top:1px solid var(--border);padding:30px 0 50px;text-align:center;color:var(--muted);font-size:.88rem}
+
+  @media (max-width:760px){
+    h1{font-size:1.9rem}
+    .steps{grid-template-columns:1fr}
+    .g-results{grid-template-columns:repeat(2,1fr)}
+    .g-mat{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="venue">ECCV 2026</span>
+    <h1><span class="grad">PhyMAGIC</span></h1>
+    <div class="subtitle">Physical Motion-Aware Generative Inference with Confidence-guided VLM</div>
+    <p class="authors">Siwei Meng<sup>1</sup> &nbsp;·&nbsp; Yawei Luo<sup>2</sup> &nbsp;·&nbsp; Ping Liu<sup>1</sup></p>
+    <p class="authors" style="font-size:.9rem;margin-top:2px"><sup>1</sup>&nbsp;University of Nevada, Reno &nbsp;&nbsp; <sup>2</sup>&nbsp;Zhejiang University</p>
+    <div class="links">
+      <a class="btn" href="docs/ECCV_2026_MAGIC_Camera.pdf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        Paper
+      </a>
+      <a class="btn" href="https://github.com/mengsiwei/MAGIC/tree/main/code">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Code
+      </a>
+      <a class="btn" href="#results">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Results
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Abstract -->
+<section id="abstract">
+  <div class="wrap">
+    <h2>Abstract</h2>
+    <div class="abstract">
+      <p>Inferring physical properties from a single image is fundamentally under-constrained. Attributes such as density, elasticity, and yield stress govern how objects move, yet they are largely invisible in a static frame. Existing physics-aware methods attempt to resolve this ambiguity through task-specific fine-tuning or supervised property estimation, but both strategies struggle to generalize across diverse materials and scenes. We observe that different motions expose complementary physical cues. Building on this observation, we propose <strong>PhyMAGIC</strong>, a <em>training-free</em> framework that actively probes physical properties by synthesizing targeted motions from a single image. Specifically, PhyMAGIC uses a pretrained image-to-video model to construct <em>motion probes</em> that generate diverse dynamic sequences from the input image. A vision-language model then analyzes these sequences to estimate physical parameters, each accompanied by a confidence score. Parameters with low confidence trigger targeted prompt refinement, which generates additional probe motions to gather complementary evidence. Once all parameters reach sufficient confidence, PhyMAGIC compiles them into a complete physical specification and executes it in a differentiable Material Point Method simulator initialized from 3D Gaussian reconstructions. Experiments on diverse real-world scenes demonstrate that PhyMAGIC achieves stronger text–motion alignment and higher human-rated physical plausibility than state-of-the-art open-source video generators and physics-aware baselines.</p>
+      <p class="muted" style="font-family:'Inter',sans-serif;font-size:.92rem;text-align:center;margin-top:18px"><strong>Keywords:</strong> Dynamic 3D · Physical Simulation · Vision-Language Models · Material Point Method</p>
+    </div>
+  </div>
+</section>
+
+<!-- Motivation -->
+<section id="motivation" style="background:var(--panel-2);border-top:1px solid var(--border)">
+  <div class="wrap">
+    <h2>Motivation</h2>
+    <p class="note">A single image with an ambiguous instruction leaves an object's physics severely under-constrained. PhyMAGIC generates a <em>chain of motion-probe videos</em> that a VLM reasons over, turning coarse, low-confidence guesses into reliable physical parameters — e.g. correcting <em>"elastic" → "rigid"</em> for a toy car once free-fall and collision evidence is observed.</p>
+    <figure class="fig-card" style="max-width:900px;margin:0 auto">
+      <img src="assets/figures/motivation.png" alt="PhyMAGIC motivation: probe-video evidence refines coarse physical parameters">
+      <figcaption>From one image and a vague prompt, coarse physical parameters are refined into final high-confidence values through VLM reasoning over probe-video evidence. · <a href="assets/figures/motivation.pdf">PDF</a></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- Pipeline / Method -->
+<section id="method">
+  <div class="wrap">
+    <h2>Method Overview</h2>
+    <figure class="fig-card">
+      <img src="assets/figures/pipeline.png" alt="PhyMAGIC pipeline overview">
+      <figcaption>Overview of PhyMAGIC. <strong>(1) Motion Probe Generation</strong> turns the image and an instruction into probe videos; <strong>(2) VLM Physical Reasoning</strong> infers physical parameters with confidence scores and refines the instruction; <strong>(3.1) Hybrid Physical Specification</strong> packages them as Hybrid Physical Parameters (HPP); and <strong>(3.2) MPM Simulation</strong> simulates and renders 3D motion with a differentiable solver — all in a closed loop. · <a href="assets/figures/pipeline.pdf">PDF</a></figcaption>
+    </figure>
+
+    <div class="steps">
+      <div class="step">
+        <span class="tag">Perceive · Motion Probe + VLM Reasoning</span>
+        <h3>Infer <em>what</em> the object is made of</h3>
+        <p class="muted">Recovers object-level physical parameters from one static image by combining generative video cues with structured VLM reasoning.</p>
+        <ul>
+          <li><strong>(1) Motion Probe Generation</strong> — an image-to-video (I2V) model turns the image plus a textual instruction into short <em>probe videos</em> that expose physical cues such as free-fall, collision, and deformation.</li>
+          <li><strong>(2) VLM Physical Reasoning</strong> — a vision-language model estimates material, mass, density, Young's modulus, Poisson ratio, and yield stress in an annotation-free way, each with a confidence score.</li>
+          <li><strong>Confidence-Driven Refinement</strong> — low-confidence parameters trigger an optimized instruction that regenerates more discriminative probe videos, looping until the estimates are reliable.</li>
+        </ul>
+      </div>
+      <div class="step">
+        <span class="tag">Simulate · Hybrid Spec + MPM</span>
+        <h3>Simulate <em>how</em> it moves</h3>
+        <p class="muted">Turns the inferred properties into physically faithful, renderable 3D dynamics.</p>
+        <ul>
+          <li><strong>(3.1) Hybrid Physical Specification</strong> — inferred values are packaged as Hybrid Physical Parameters (HPP): object-level parameters (material, density, modulus, …) plus simulator-native descriptors (motion, boundary condition, rotation, velocity, surface type).</li>
+          <li><strong>3D Reconstruction</strong> — an image-to-3D (I23D) model lifts the image to 3D Gaussians, converted into a simulation-ready particle representation.</li>
+          <li><strong>(3.2) MPM Simulation &amp; Rendering</strong> — a differentiable Material Point Method solver advances the particles under the HPP; Gaussian rasterization renders the result, and simulation feedback closes the loop.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<section id="results" style="background:var(--panel-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <h2>Results — Single Image → Physical 3D Motion</h2>
+    <p class="note">Each result is generated from a single input image: PhyMAGIC infers the material, reconstructs a 3D asset, and simulates physically consistent dynamics.</p>
+    <div class="grid g-results">
+      <div class="card"><img src="assets/gifs/yellowcar.gif" alt="Yellow car" loading="lazy"><div class="cap">Toy Car<small>Rigid body · scene compositing</small></div></div>
+      <div class="card"><img src="assets/gifs/horse.gif" alt="Horse" loading="lazy"><div class="cap">Horse<small>Elastic deformation</small></div></div>
+      <div class="card"><img src="assets/gifs/compressball.gif" alt="Basketball" loading="lazy"><div class="cap">Basketball<small>Compression response</small></div></div>
+      <div class="card"><img src="assets/gifs/colacan.gif" alt="Cola can" loading="lazy"><div class="cap">Cola Can<small>Metal · plastic buckling</small></div></div>
+      <div class="card"><img src="assets/gifs/watercube.gif" alt="Water cube" loading="lazy"><div class="cap">Water Cube<small>Fluid collapse</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Material diversity -->
+<section id="materials">
+  <div class="wrap">
+    <h2>Material &amp; Interaction Diversity</h2>
+    <p class="note">The same MPM-based dynamic stage covers a broad span of material models and interactions under varied actions (compress, stretch, spin, free-fall, push, collision).</p>
+    <div class="grid g-mat">
+      <div class="card"><img src="assets/gifs/mat_jelly.gif" alt="Jelly" loading="lazy"><div class="cap">Jelly<small>compress</small></div></div>
+      <div class="card"><img src="assets/gifs/mat_elastic.gif" alt="Elastic" loading="lazy"><div class="cap">Elastic<small>stretch</small></div></div>
+      <div class="card"><img src="assets/gifs/mat_sand.gif" alt="Sand" loading="lazy"><div class="cap">Sand<small>free-fall</small></div></div>
+      <div class="card"><img src="assets/gifs/mat_snow.gif" alt="Snow" loading="lazy"><div class="cap">Snow<small>spin</small></div></div>
+      <div class="card"><img src="assets/gifs/mat_metal.gif" alt="Metal" loading="lazy"><div class="cap">Metal<small>spin</small></div></div>
+      <div class="card"><img src="assets/gifs/mat_fluid.gif" alt="Fluid" loading="lazy"><div class="cap">Fluid<small>top push</small></div></div>
+      <div class="card"><img src="assets/gifs/mat_foam.gif" alt="Foam" loading="lazy"><div class="cap">Foam<small>compress</small></div></div>
+      <div class="card"><img src="assets/gifs/mat_plasticine.gif" alt="Plasticine" loading="lazy"><div class="cap">Plasticine<small>stretch</small></div></div>
+      <div class="card"><img src="assets/gifs/multi_water_rigid.gif" alt="Water + rigid" loading="lazy"><div class="cap">Water + Rigid<small>multi-material collision</small></div></div>
+      <div class="card"><img src="assets/gifs/multi_water_elastic.gif" alt="Water + elastic" loading="lazy"><div class="cap">Water + Elastic<small>multi-material collision</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Analysis -->
+<section id="analysis" style="background:var(--panel-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <h2>Confidence-Guided Inference</h2>
+    <p class="note">Iterative, confidence-guided prompt refinement progressively raises the reliability of inferred physical properties.</p>
+    <figure class="fig-card" style="max-width:760px;margin:0 auto">
+      <img src="assets/figures/confidence_sweep.png" alt="Confidence sweep analysis" style="background:#fff">
+      <figcaption>Effect of the confidence threshold γ on inferred physical-property accuracy across the refinement loop.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- Citation -->
+<section id="citation">
+  <div class="wrap" style="max-width:820px">
+    <h2>Citation</h2>
+    <pre><code>@inproceedings{meng2026phymagic,
+  title     = {PhyMAGIC: Physical Motion-Aware Generative Inference
+               with Confidence-guided VLM},
+  author    = {Meng, Siwei and Luo, Yawei and Liu, Ping},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  year      = {2026}
+}</code></pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>PhyMAGIC · Physics-aware generative 3D dynamics from a single image.<br>
+    Siwei Meng, Yawei Luo, Ping Liu · Accepted to ECCV 2026.</p>
+  </div>
+</footer>
+
+</body>
+</html>
