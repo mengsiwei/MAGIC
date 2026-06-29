@@ -58,7 +58,7 @@
 
   /* Abstract */
   .abstract{max-width:760px;margin:0 auto}
-  .abstract p{font-family:'Inter',Georgia,serif;font-size:0.9rem;line-height:1.72;color:#2b3040;text-align:justify}
+  .abstract p{font-family:'Inter',Georgia,serif;font-size:0.89rem;line-height:1.5;color:#2b3040;text-align:justify}
 
   /* Figure */
   figure{margin:0}
@@ -71,7 +71,7 @@
   .step{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px}
   .step .tag{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
     color:var(--accent-2);margin-bottom:8px}
-  .step ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:.8rem;line-height:1.55}
+  .step ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:.8rem;line-height:1.5}
   .step li{margin-bottom:4px}
   .step h3 em{font-style:normal;color:var(--accent);font-weight:700}
 
@@ -165,7 +165,7 @@
         <span class="tag">Perceive · Motion Probe + VLM Reasoning</span>
         <h3>Infer <em>what</em> the object is made of</h3>
         <p class="muted">Recovers object-level physical parameters from one static image by combining generative video cues with structured VLM reasoning.</p>
-        <ul>
+        <ul style="font-size:.82rem">
           <li><strong>Motion Probe Generation</strong> — an image-to-video (I2V) model turns the image plus a textual instruction into short <em>probe videos</em> that expose physical cues such as free-fall, collision, and deformation.</li>
           <li><strong>VLM Physical Reasoning</strong> — a vision-language model estimates material, mass, density, Young's modulus, Poisson ratio, and yield stress in an annotation-free way, each with a confidence score.</li>
           <li><strong>Confidence-Driven Refinement</strong> — low-confidence parameters trigger an optimized instruction that regenerates more discriminative probe videos, looping until the estimates are reliable.</li>
@@ -175,7 +175,7 @@
         <span class="tag">Simulate · Hybrid Spec + MPM</span>
         <h3>Simulate <em>how</em> it moves</h3>
         <p class="muted">Turns the inferred properties into physically faithful, renderable 3D dynamics.</p>
-        <ul>
+        <ul style="font-size:.82rem">
           <li><strong>Hybrid Physical Specification</strong> — inferred values are packaged as Hybrid Physical Parameters (HPP): object-level parameters (material, density, modulus, …) plus simulator-native descriptors (motion, boundary condition, rotation, velocity, surface type).</li>
           <li><strong>3D Reconstruction</strong> — an image-to-3D (I23D) model lifts the image to 3D Gaussians, converted into a simulation-ready particle representation.</li>
           <li><strong>MPM Simulation &amp; Rendering</strong> — a differentiable Material Point Method solver advances the particles under the HPP; Gaussian rasterization renders the result, and simulation feedback closes the loop.</li>
@@ -192,6 +192,7 @@
     <p class="note">Each result is generated from a single input image: PhyMAGIC infers the material, reconstructs a 3D asset, and simulates physically consistent dynamics.</p>
     <div class="grid g-results">
       <!-- <div class="card"><img src="assets/gifs/yellowcar.gif" alt="Yellow car" loading="lazy"><div class="cap">Toy Car<small>Rigid body · scene compositing</small></div></div> -->
+      <div class="card"><img src="assets/gifs/wolf.gif" alt="Wolf" loading="lazy"><div class="cap">Wolf<small>Elastic collapse under gravity</small></div></div>
       <div class="card"><img src="assets/gifs/horse.gif" alt="Horse" loading="lazy"><div class="cap">Horse<small>Elastic deformation</small></div></div>
       <div class="card"><img src="assets/gifs/compressball.gif" alt="Basketball" loading="lazy"><div class="cap">Basketball<small>Compression response</small></div></div>
       <!-- <div class="card"><img src="assets/gifs/colacan.gif" alt="Cola can" loading="lazy"><div class="cap">Cola Can<small>Metal · plastic buckling</small></div></div> -->
