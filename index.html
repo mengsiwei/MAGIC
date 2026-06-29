@@ -32,7 +32,7 @@
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
   section{padding:46px 0}
   h2{font-size:1.5rem;font-weight:700;letter-spacing:-.01em;margin:0 0 18px;text-align:center}
-  h3{font-size:1.05rem;font-weight:600;margin:0 0 8px}
+  h3{font-size:0.85rem;font-weight:600;margin:0 0 8px}
   p{color:#2b3040}
   .muted{color:var(--muted)}
 
@@ -73,6 +73,7 @@
     color:var(--accent-2);margin-bottom:8px}
   .step ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:.94rem}
   .step li{margin-bottom:4px}
+  .step h3 em{font-style:normal;color:var(--accent);font-weight:700}
 
   /* Galleries */
   .grid{display:grid;gap:18px}
@@ -133,7 +134,7 @@
     <h2>Abstract</h2>
     <div class="abstract">
       <p>Inferring physical properties from a single image is fundamentally under-constrained. Attributes such as density, elasticity, and yield stress govern how objects move, yet they are largely invisible in a static frame. Existing physics-aware methods attempt to resolve this ambiguity through task-specific fine-tuning or supervised property estimation, but both strategies struggle to generalize across diverse materials and scenes. We observe that different motions expose complementary physical cues. Building on this observation, we propose <strong>PhyMAGIC</strong>, a <em>training-free</em> framework that actively probes physical properties by synthesizing targeted motions from a single image. Specifically, PhyMAGIC uses a pretrained image-to-video model to construct <em>motion probes</em> that generate diverse dynamic sequences from the input image. A vision-language model then analyzes these sequences to estimate physical parameters, each accompanied by a confidence score. Parameters with low confidence trigger targeted prompt refinement, which generates additional probe motions to gather complementary evidence. Once all parameters reach sufficient confidence, PhyMAGIC compiles them into a complete physical specification and executes it in a differentiable Material Point Method simulator initialized from 3D Gaussian reconstructions. Experiments on diverse real-world scenes demonstrate that PhyMAGIC achieves stronger text–motion alignment and higher human-rated physical plausibility than state-of-the-art open-source video generators and physics-aware baselines.</p>
-      <p class="muted" style="font-family:'Inter',sans-serif;font-size:.92rem;text-align:center;margin-top:18px"><strong>Keywords:</strong> Dynamic 3D · Physical Simulation · Vision-Language Models · Material Point Method</p>
+      <p class="muted" style="font-family:'Inter',sans-serif;font-size:.76rem;text-align:center;margin-top:18px"><strong>Keywords:</strong> Dynamic 3D · Physical Simulation · Vision-Language Models · Material Point Method</p>
     </div>
   </div>
 </section>
@@ -165,8 +166,8 @@
         <h3>Infer <em>what</em> the object is made of</h3>
         <p class="muted">Recovers object-level physical parameters from one static image by combining generative video cues with structured VLM reasoning.</p>
         <ul>
-          <li><strong>(1) Motion Probe Generation</strong> — an image-to-video (I2V) model turns the image plus a textual instruction into short <em>probe videos</em> that expose physical cues such as free-fall, collision, and deformation.</li>
-          <li><strong>(2) VLM Physical Reasoning</strong> — a vision-language model estimates material, mass, density, Young's modulus, Poisson ratio, and yield stress in an annotation-free way, each with a confidence score.</li>
+          <li><strong>Motion Probe Generation</strong> — an image-to-video (I2V) model turns the image plus a textual instruction into short <em>probe videos</em> that expose physical cues such as free-fall, collision, and deformation.</li>
+          <li><strong>VLM Physical Reasoning</strong> — a vision-language model estimates material, mass, density, Young's modulus, Poisson ratio, and yield stress in an annotation-free way, each with a confidence score.</li>
           <li><strong>Confidence-Driven Refinement</strong> — low-confidence parameters trigger an optimized instruction that regenerates more discriminative probe videos, looping until the estimates are reliable.</li>
         </ul>
       </div>
@@ -175,9 +176,9 @@
         <h3>Simulate <em>how</em> it moves</h3>
         <p class="muted">Turns the inferred properties into physically faithful, renderable 3D dynamics.</p>
         <ul>
-          <li><strong>(3.1) Hybrid Physical Specification</strong> — inferred values are packaged as Hybrid Physical Parameters (HPP): object-level parameters (material, density, modulus, …) plus simulator-native descriptors (motion, boundary condition, rotation, velocity, surface type).</li>
+          <li><strong>Hybrid Physical Specification</strong> — inferred values are packaged as Hybrid Physical Parameters (HPP): object-level parameters (material, density, modulus, …) plus simulator-native descriptors (motion, boundary condition, rotation, velocity, surface type).</li>
           <li><strong>3D Reconstruction</strong> — an image-to-3D (I23D) model lifts the image to 3D Gaussians, converted into a simulation-ready particle representation.</li>
-          <li><strong>(3.2) MPM Simulation &amp; Rendering</strong> — a differentiable Material Point Method solver advances the particles under the HPP; Gaussian rasterization renders the result, and simulation feedback closes the loop.</li>
+          <li><strong>MPM Simulation &amp; Rendering</strong> — a differentiable Material Point Method solver advances the particles under the HPP; Gaussian rasterization renders the result, and simulation feedback closes the loop.</li>
         </ul>
       </div>
     </div>
@@ -190,17 +191,17 @@
     <h2>Results — Single Image → Physical 3D Motion</h2>
     <p class="note">Each result is generated from a single input image: PhyMAGIC infers the material, reconstructs a 3D asset, and simulates physically consistent dynamics.</p>
     <div class="grid g-results">
-      <div class="card"><img src="assets/gifs/yellowcar.gif" alt="Yellow car" loading="lazy"><div class="cap">Toy Car<small>Rigid body · scene compositing</small></div></div>
+      <!-- <div class="card"><img src="assets/gifs/yellowcar.gif" alt="Yellow car" loading="lazy"><div class="cap">Toy Car<small>Rigid body · scene compositing</small></div></div> -->
       <div class="card"><img src="assets/gifs/horse.gif" alt="Horse" loading="lazy"><div class="cap">Horse<small>Elastic deformation</small></div></div>
       <div class="card"><img src="assets/gifs/compressball.gif" alt="Basketball" loading="lazy"><div class="cap">Basketball<small>Compression response</small></div></div>
-      <div class="card"><img src="assets/gifs/colacan.gif" alt="Cola can" loading="lazy"><div class="cap">Cola Can<small>Metal · plastic buckling</small></div></div>
-      <div class="card"><img src="assets/gifs/watercube.gif" alt="Water cube" loading="lazy"><div class="cap">Water Cube<small>Fluid collapse</small></div></div>
+      <!-- <div class="card"><img src="assets/gifs/colacan.gif" alt="Cola can" loading="lazy"><div class="cap">Cola Can<small>Metal · plastic buckling</small></div></div> -->
+      <!-- <div class="card"><img src="assets/gifs/watercube.gif" alt="Water cube" loading="lazy"><div class="cap">Water Cube<small>Fluid collapse</small></div></div> -->
     </div>
   </div>
 </section>
 
 <!-- Material diversity -->
-<section id="materials">
+<!-- <section id="materials">
   <div class="wrap">
     <h2>Material &amp; Interaction Diversity</h2>
     <p class="note">The same MPM-based dynamic stage covers a broad span of material models and interactions under varied actions (compress, stretch, spin, free-fall, push, collision).</p>
@@ -217,9 +218,9 @@
       <div class="card"><img src="assets/gifs/multi_water_elastic.gif" alt="Water + elastic" loading="lazy"><div class="cap">Water + Elastic<small>multi-material collision</small></div></div>
     </div>
   </div>
-</section>
+</section> -->
 
-<!-- Analysis -->
+<!-- Analysis
 <section id="analysis" style="background:var(--panel-2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="wrap">
     <h2>Confidence-Guided Inference</h2>
@@ -229,7 +230,7 @@
       <figcaption>Effect of the confidence threshold γ on inferred physical-property accuracy across the refinement loop.</figcaption>
     </figure>
   </div>
-</section>
+</section> -->
 
 <!-- Citation -->
 <section id="citation">
@@ -239,7 +240,7 @@
   title     = {PhyMAGIC: Physical Motion-Aware Generative Inference
                with Confidence-guided VLM},
   author    = {Meng, Siwei and Luo, Yawei and Liu, Ping},
-  booktitle = {European Conference on Computer Vision (ECCV)},
+  booktitle = {ECCV},
   year      = {2026}
 }</code></pre>
   </div>
